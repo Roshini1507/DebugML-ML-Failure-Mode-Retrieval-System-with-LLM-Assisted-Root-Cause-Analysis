@@ -157,7 +157,7 @@ App: [http://localhost:8501](http://localhost:8501).
 
 | Main interface | Results view |
 |----------------|--------------|
-| ![Main interface](data/main.png) | ![Results](data\results.png) |
+| ![Main interface](data/main.png) | ![Results](data/results.png) |
 
 ---
 
@@ -173,5 +173,6 @@ App: [http://localhost:8501](http://localhost:8501).
 - [ ] **Export report** — PDF/Markdown export of analysis for documentation.
 
 ---
+
 
 
