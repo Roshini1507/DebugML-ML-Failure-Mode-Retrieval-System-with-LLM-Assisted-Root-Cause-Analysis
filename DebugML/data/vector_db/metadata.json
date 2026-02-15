@@ -1,0 +1,167 @@
+[
+  {
+    "id": 1,
+    "failure_description": "Model achieved 99% accuracy on validation set but only 62% on holdout test data. Performance collapsed when deployed to production.",
+    "root_cause": "Severe overfitting: 50M parameter transformer trained on 10K samples without regularization. Model memorized training patterns.",
+    "solution": "Added dropout (0.3), weight decay, early stopping, and reduced model size. Augmented dataset to 100K samples. Achieved 78% on test.",
+    "tags": [
+      "overfitting",
+      "model-complexity",
+      "regularization"
+    ]
+  },
+  {
+    "id": 2,
+    "failure_description": "Training loss became NaN after 3 epochs. Logs showed gradient norms spiking from 0.5 to 1e8.",
+    "root_cause": "Exploding gradients in LSTM layers due to unbounded activation and learning rate 0.1. Recurrent connections amplified errors.",
+    "solution": "Applied gradient clipping (max_norm=1.0), reduced learning rate to 1e-3, switched to tanh activations. Training stabilized.",
+    "tags": [
+      "exploding-gradients",
+      "rnn",
+      "training-instability"
+    ]
+  },
+  {
+    "id": 3,
+    "failure_description": "Production model scored 0.45 AUC vs 0.89 AUC during validation. Feature distributions differed significantly between environments.",
+    "root_cause": "Data leakage: min-max scaler fit on full dataset before train/test split. Test set statistics leaked into training preprocessing.",
+    "solution": "Fit scaler only on training fold. Used sklearn Pipeline with fit_transform restricted to train. Retrained from scratch.",
+    "tags": [
+      "data-leakage",
+      "preprocessing",
+      "validation"
+    ]
+  },
+  {
+    "id": 4,
+    "failure_description": "Binary classifier predicted positive for 98% of samples. Precision and recall near zero despite 98% accuracy.",
+    "root_cause": "Class imbalance: 98:2 ratio (fraud:legit). Model learned to always predict majority class. Accuracy metric hid the failure.",
+    "solution": "Used SMOTE oversampling, class weights (inverse frequency), and switched to PR-AUC as primary metric. F1 improved to 0.72.",
+    "tags": [
+      "class-imbalance",
+      "metrics",
+      "sampling"
+    ]
+  },
+  {
+    "id": 5,
+    "failure_description": "Deep network layers showed near-zero weight updates. Gradients diminished to 1e-7 by layer 3 in 8-layer MLP.",
+    "root_cause": "Vanishing gradients from sigmoid activations in deep feedforward net. Chain rule multiplication eroded signal.",
+    "solution": "Replaced sigmoid with ReLU, added batch normalization, used Xavier initialization. Gradient flow restored.",
+    "tags": [
+      "vanishing-gradients",
+      "activation-functions",
+      "initialization"
+    ]
+  },
+  {
+    "id": 6,
+    "failure_description": "Model failed on images with different lighting. Train accuracy 94%, real-world deployment 51%.",
+    "root_cause": "Poor preprocessing: raw pixel values, no normalization. Training data collected under controlled lab lighting only.",
+    "solution": "Added histogram equalization, per-image standardization, and augmented with brightness/contrast variations. Test accuracy 81%.",
+    "tags": [
+      "poor-preprocessing",
+      "domain-shift",
+      "augmentation"
+    ]
+  },
+  {
+    "id": 7,
+    "failure_description": "Model assigned high confidence to nonsensical inputs. Adversarial patches caused 100% misclassification.",
+    "root_cause": "Overconfident calibration: softmax outputs did not reflect true probability. Model never saw out-of-distribution examples.",
+    "solution": "Applied temperature scaling, added OOD detection (Mahalanobis distance), included negative samples in training.",
+    "tags": [
+      "calibration",
+      "adversarial",
+      "ood-detection"
+    ]
+  },
+  {
+    "id": 8,
+    "failure_description": "Recommendation model showed runaway feedback: popular items became exponentially more recommended.",
+    "root_cause": "Training on logged feedback introduced selection bias. Model reinforced existing popularity instead of discovering preferences.",
+    "solution": "Implemented inverse propensity weighting, debiased offline evaluation, and exploration term in ranking. Diversity increased 40%.",
+    "tags": [
+      "selection-bias",
+      "recommendation",
+      "feedback-loops"
+    ]
+  },
+  {
+    "id": 9,
+    "failure_description": "NLP model performed well on formal text but failed on slang, typos, and dialect. F1 dropped 35 points.",
+    "root_cause": "Distribution mismatch: training on news/corpora only. Tokenizer and embeddings unfamiliar with informal text.",
+    "solution": "Added social media and chat corpora, used byte-pair encoding, fine-tuned embeddings on target domain. F1 recovered.",
+    "tags": [
+      "domain-shift",
+      "nlp",
+      "data-diversity"
+    ]
+  },
+  {
+    "id": 10,
+    "failure_description": "Object detector missed small objects entirely. mAP for objects <32px was 0.12 vs 0.76 for large objects.",
+    "root_cause": "Scale imbalance: single-scale training, stride too coarse for small objects. Anchors biased toward large boxes.",
+    "solution": "Added FPN for multi-scale detection, reduced stride in backbone, tuned anchor sizes. Small object mAP reached 0.58.",
+    "tags": [
+      "scale-imbalance",
+      "object-detection",
+      "architecture"
+    ]
+  },
+  {
+    "id": 11,
+    "failure_description": "Time series forecast was 2 weeks delayed. Model appeared to predict past values shifted forward.",
+    "root_cause": "Target leakage: used future-looking features (e.g., next-month sales) that would not exist at inference time.",
+    "solution": "Audited features for temporal validity. Removed leaky features, enforced strict train/inference alignment. Lag eliminated.",
+    "tags": [
+      "data-leakage",
+      "time-series",
+      "feature-engineering"
+    ]
+  },
+  {
+    "id": 12,
+    "failure_description": "Model predictions differed between CPU and GPU. Same inputs produced different outputs on different hardware.",
+    "root_cause": "Non-determinism: cuDNN auto-tuner, atomic operations, and floating-point order of operations varied by device.",
+    "solution": "Set CUBLAS_WORKSPACE_CONFIG, cuDNN deterministic mode, and fixed random seeds. Reproducibility verified across devices.",
+    "tags": [
+      "reproducibility",
+      "hardware",
+      "numerical-stability"
+    ]
+  },
+  {
+    "id": 13,
+    "failure_description": "Cross-validation scores varied from 0.65 to 0.92. Single split gave false confidence in model quality.",
+    "root_cause": "Insufficient validation: small dataset (2K samples), single random split. High variance in estimates.",
+    "solution": "Switched to 10-fold stratified CV with fixed seeds. Reported mean ± std. Used nested CV for hyperparameter selection.",
+    "tags": [
+      "validation",
+      "variance",
+      "small-data"
+    ]
+  },
+  {
+    "id": 14,
+    "failure_description": "Embeddings for similar items had cosine similarity 0.1. Retrieval returned irrelevant results.",
+    "root_cause": "Poor contrastive training: batch size 32 too small for InfoNCE. Hard negatives dominated, positive pairs underrepresented.",
+    "solution": "Increased batch size to 512, used in-batch negatives, added hard negative mining. Retrieval NDCG improved from 0.31 to 0.67.",
+    "tags": [
+      "embeddings",
+      "contrastive-learning",
+      "retrieval"
+    ]
+  },
+  {
+    "id": 15,
+    "failure_description": "Model degraded 3 months after deployment. Retraining on new data made performance worse.",
+    "root_cause": "Concept drift and catastrophic forgetting: fine-tuning on recent data overwrote useful representations from original training.",
+    "solution": "Implemented elastic weight consolidation, maintained replay buffer of old examples, used incremental learning. Performance stabilized.",
+    "tags": [
+      "concept-drift",
+      "catastrophic-forgetting",
+      "production"
+    ]
+  }
+]
